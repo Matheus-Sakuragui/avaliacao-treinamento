@@ -1,0 +1,73 @@
+image: "python:3.9"
+
+before_script:
+  - python --version
+  - pip install -U virtualenv
+  - virtualenv venv
+  - source venv/bin/activate
+
+cache:
+  paths:
+    - venv/
+
+stages:
+  - install
+  - static_analysis
+  - formatting
+  - security
+  - test
+  - coverage
+
+install_dependencies:
+  stage: install
+  script:
+    - python --version
+    - pip install -U virtualenv
+    - virtualenv venv
+    - source venv/bin/activate
+    - pip install --upgrade pip
+    - pip install -r requirements.txt
+
+
+flake8:
+  stage: static_analysis
+  script:
+    - flake8 --max-line-length=120 --max-complexity 8 flaskr/**/*.py
+    - flake8 --max-line-length=120 --max-complexity 8 tests/**/*.py
+
+pylint:
+  stage: static_analysis
+  script:
+    - pylint flaskr/**/*.py
+    - pylint tests/**/*.py
+
+isort:
+  stage: formatting
+  script:
+    - isort .
+
+safety:
+  stage: security
+  allow_failure: true
+  script:
+    - safety check
+
+pytest_unit:
+  stage: test
+  needs: ["unit"]
+  allow_failure: false
+  script:
+    - python -m pytest --disable-warnings tests/unit
+
+pytest_functional:
+  stage: test
+  allow_failure: false
+  needs: ["functional"]
+  script:
+    - python -m pytest --disable-warnings tests/functional
+
+coverage:
+  stage: coverage
+  allow_failure: true
+  script:
+    - python -m pytest --disable-warnings --cov-report term-missing --cov=flaskr tests

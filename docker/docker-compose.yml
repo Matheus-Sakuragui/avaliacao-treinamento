@@ -1,0 +1,60 @@
+version: "3"
+
+services:
+  prj-backend-app:
+    container_name: prj-backend-app
+    hostname: prj-backend-app
+    image: prj-backend-app
+    build:
+      context: ../
+      dockerfile: ./docker/flask.dockerfile
+    restart: always
+    ports:
+      - "5000:5000"
+    volumes:
+      - ${FLASKR_BACK_DEV_DIR}:/flaskr
+    env_file:
+      - .env
+    depends_on:
+      - prj-db
+      - prj-redis
+    networks:
+      - prj-network
+
+  prj-db:
+    image: postgres:16
+    container_name: prj-db
+    hostname: prj-db
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PWD:-postgres}
+      POSTGRES_DB: ${DEFAULT_DATABASE:-sdb}
+      PGDATA: /data/postgres
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}"
+    volumes:
+      - postgres:/data/postgres
+      - ./sql:/docker-entrypoint-initdb.d
+    networks:
+      - prj-network
+
+  prj-redis:
+    image: redis:alpine
+    container_name: prj-redis
+    hostname: prj-redis
+    restart: always
+    ports:
+      - "6379:6379"
+    networks:
+      - prj-network
+
+volumes:
+  postgres:
+
+networks:
+  prj-network:
+    driver: bridge
+    name: prj-network
