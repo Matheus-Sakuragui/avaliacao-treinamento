@@ -10,6 +10,8 @@ from flaskr.schemas.token import MessageSchema
 from flaskr.schemas.user import (UserRequestGetSchema, UserRequestPostSchema,
                                  UserResponseSchema, user_schema)
 
+from flaskr.models.token import TokenBlocklistModel
+from flask_jwt_extended import decode_token
 
 @doc(description='User Register API', tags=['User'])
 class UserRegisterResource(MethodResource, Resource):
@@ -28,10 +30,10 @@ class UserRegisterResource(MethodResource, Resource):
         return make_response({"message": "Fail registering new user"}, 400)
 
     @use_kwargs({
-        'Authorization':
+        'access_key':
         fields.Str(
             required=True,
-            description='Bearer [access_token]'
+            description='access_key'
         )
     }, location='headers')
     @marshal_with(UserResponseSchema, code=201)
@@ -39,8 +41,15 @@ class UserRegisterResource(MethodResource, Resource):
     @use_kwargs(UserRequestPostSchema, location='json')
     @use_kwargs(UserRequestGetSchema, location='query')
     @doc(description='Update saved user')
-    @jwt_required()
     def put(self, **kwargs):
+        access_token = TokenBlocklistModel.get_token(kwargs['access_key'])
+        if not access_token:
+            return make_response({"message": "Invalid access token"}, 401)
+        claims = decode_token(access_token)
+        if not claims:
+            return make_response({"message": "User not authenticated"}, 401)
+        del kwargs['access_key']
+        
         user_id = kwargs["uid"]
         saved_user = UserModel.find_by_id(user_id)
         if not saved_user:
@@ -53,18 +62,25 @@ class UserRegisterResource(MethodResource, Resource):
         return make_response(user_schema.dump(saved_user), 201)
 
     @use_kwargs({
-        'Authorization':
+        'access_key':
         fields.Str(
             required=True,
-            description='Bearer [access_token]'
+            description='access_key'
         )
     }, location='headers')
     @marshal_with(UserResponseSchema, code=201)
     @marshal_with(MessageSchema, code=404)
     @use_kwargs(UserRequestGetSchema, location='query')
     @doc(description='Get user by id')
-    @jwt_required()
     def get(self, **kwargs):
+        access_token = TokenBlocklistModel.get_token(kwargs['access_key'])
+        if not access_token:
+            return make_response({"message": "Invalid access token"}, 401)
+        claims = decode_token(access_token)
+        if not claims:
+            return make_response({"message": "User not authenticated"}, 401)
+        del kwargs['access_key']
+        
         user_id = kwargs["uid"]
 
         user = UserModel.find_by_id(user_id)
@@ -73,18 +89,25 @@ class UserRegisterResource(MethodResource, Resource):
         return make_response({'message': 'User not found'}, 404)
 
     @use_kwargs({
-        'Authorization':
+        'access_key':
         fields.Str(
             required=True,
-            description='Bearer [access_token]'
+            description='access_key'
         )
     }, location='headers')
     @marshal_with(MessageSchema, code=201)
     @marshal_with(MessageSchema, code=404)
     @use_kwargs(UserRequestGetSchema, location='query')
     @doc(description='Delete user by id')
-    @jwt_required()
     def delete(self, **kwargs):
+        access_token = TokenBlocklistModel.get_token(kwargs['access_key'])
+        if not access_token:
+            return make_response({"message": "Invalid access token"}, 401)
+        claims = decode_token(access_token)
+        if not claims:
+            return make_response({"message": "User not authenticated"}, 401)
+        del kwargs['access_key']
+        
         user_id = kwargs["uid"]
 
         user = UserModel.find_by_id(user_id)

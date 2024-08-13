@@ -1,9 +1,12 @@
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.exc import SQLAlchemyError
+import redis
 
 import flaskr.config_app as ca
 
 db_instance = SQLAlchemy()
+
+redis_instance = redis.Redis(host=ca.REDIS_HOST, port=ca.REDIS_PORT, password=ca.REDIS_PWD, decode_responses=True)
 
 
 def config_sql_alchemy(app):

@@ -27,6 +27,9 @@ class PostRequestSchema(ma.Schema):
     
 class PostRequestGetSchema(ma.Schema):
     id = fields.Int(required=True, default='id', help='Invalid id')
+    
+class PostRequestByAuthorIdSchema(ma.Schema):
+    author_id = fields.Int(required=True, default='author_id', help='Invalid author_id')
 
 post_schema = PostSchema()
 

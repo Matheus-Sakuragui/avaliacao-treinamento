@@ -3,7 +3,8 @@ from flask_login import UserMixin
 from sqlalchemy.sql import func
 from sqlalchemy_history import make_versioned
 from werkzeug.security import check_password_hash, generate_password_hash
-
+import hashlib
+from flaskr.db import redis_instance
 import flaskr.config_app as ca
 from flaskr.db import db_instance, db_persist
 from flaskr.login_manager import login_manager

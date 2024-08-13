@@ -4,6 +4,8 @@ from sqlalchemy_history import make_versioned
 
 import flaskr.config_app as ca
 from flaskr.db import db_instance, db_persist
+import hashlib
+from flaskr.db import redis_instance
 
 make_versioned(user_cls='UserModel')
 
@@ -20,6 +22,27 @@ class TokenBlocklistModel(db_instance.Model):
     @classmethod
     def get_token(cls, jti):
         return db_instance.session.query(TokenBlocklistModel.id).filter_by(jti=jti).scalar()
+    
+    @classmethod
+    def save_token(cls, token,):
+        key = hashlib.md5(token.encode()).hexdigest()
+        redis_instance.set(key , token, ex=cls.TOKEN_EXPIRATION_TIME)
+        return key
+    
+    @classmethod
+    def refresh_token_expiration(cls, key):
+        token = redis_instance.get(key)
+        if token:
+            redis_instance.set(key, token, ex=cls.TOKEN_EXPIRATION_TIME)
+    
+    @classmethod
+    def get_token(cls, key):
+        access_token = redis_instance.get(key)
+        if access_token:
+            cls.refresh_token_expiration(key)
+            return access_token
+        else:
+            return None
 
     @db_persist
     def save(self):

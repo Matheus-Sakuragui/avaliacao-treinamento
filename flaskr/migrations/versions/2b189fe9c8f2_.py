@@ -1,8 +1,8 @@
-"""Initial migration.
+"""empty message
 
-Revision ID: ac1d8d272553
-Revises: 
-Create Date: 2024-02-26 09:56:06.056014
+Revision ID: 2b189fe9c8f2
+Revises: 73cd37680bd2
+Create Date: 2024-08-13 18:53:39.880478
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'ac1d8d272553'
-down_revision = None
+revision = '2b189fe9c8f2'
+down_revision = '73cd37680bd2'
 branch_labels = None
 depends_on = None
 
@@ -47,7 +47,8 @@ def upgrade():
     op.create_table('users',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('username', sa.String(length=80), nullable=True),
-    sa.Column('password', sa.String(length=200), nullable=True),
+    sa.Column('email', sa.String(length=120), nullable=True),
+    sa.Column('password_hash', sa.String(length=200), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=True),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
     sa.PrimaryKeyConstraint('id'),
@@ -59,7 +60,8 @@ def upgrade():
     op.create_table('users_version',
     sa.Column('id', sa.Integer(), autoincrement=False, nullable=False),
     sa.Column('username', sa.String(length=80), autoincrement=False, nullable=True),
-    sa.Column('password', sa.String(length=200), autoincrement=False, nullable=True),
+    sa.Column('email', sa.String(length=120), autoincrement=False, nullable=True),
+    sa.Column('password_hash', sa.String(length=200), autoincrement=False, nullable=True),
     sa.Column('transaction_id', sa.BigInteger(), autoincrement=False, nullable=False),
     sa.Column('end_transaction_id', sa.BigInteger(), nullable=True),
     sa.Column('operation_type', sa.SmallInteger(), nullable=False),

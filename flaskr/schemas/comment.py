@@ -26,6 +26,9 @@ class CommentRequestSchema(ma.Schema):
 class CommentRequestGetSchema(ma.Schema):
     id = fields.Int(required=True, default='id', help='Invalid id')
     
+class CommentRequestByPostIdSchema(ma.Schema):
+    post_id = fields.Int(required=True, default='post_id', help='Invalid post_id')  
+    
 comment_schema = CommentSchema()
   
     

@@ -25,21 +25,19 @@ class TokenResource(MethodResource, Resource):
     @doc(description='Login and generate new access and refresh token')
     def post(self, **kwargs):
         username = kwargs["username"]
-        password = kwargs["password"]
-        # Query your database for username and password
+        password_hash = kwargs["password_hash"]
+ 
         user = UserModel.query.filter_by(username=username).first()
-        if not user or not user.verify_password(password):
-            # the user was not found on the database
+        if not user or not user.verify_password(password_hash):
+
             return make_response({"message": "Invalid username or password"}, 401)
 
-        # set login user for Flask-Login
         login_user(user)
-        # create a new token with the user id inside
+
         access_token = create_access_token(identity=user.id)
-        refresh_token = create_refresh_token(user.id)
+        access_key = TokenBlocklistModel.save_token(access_token)
         return make_response({
-            "access_token": access_token,
-            "refresh_token": refresh_token,
+            "aaccess_key": access_key,
             "uid": user.id
         }, 201)
 
@@ -53,9 +51,9 @@ class TokenResource(MethodResource, Resource):
     @marshal_with(MessageSchema, code=201)
     @doc(description='Revoke current access token')
     @jwt_required()
-    def delete(self, **kwargs):  # pylint: disable=unused-argument
+    def delete(self, **kwargs): 
         jti = get_jwt()["jti"]
-        # remove login user for Flask-Login
+
         logout_user()
         now = datetime.now(timezone.utc)
         TokenBlocklistModel(jti=jti, created_at=now).save()
