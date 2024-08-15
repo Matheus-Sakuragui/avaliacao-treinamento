@@ -2,6 +2,14 @@
 
 ### Instrutor: Adriano Mota e Souza
 
+
+### Para rodar o sistema
+
+```
+cd docker
+docker-compose up --force-recreate 
+```
+
 ## Descritivo para Implementação de Aplicação de um Blog
 
 #### Objetivo
@@ -9,6 +17,7 @@
 O objetivo deste teste técnico é avaliar sua capacidade de implementar uma aplicação web utilizando o framework Flask, com foco em boas práticas de desenvolvimento, integração de bibliotecas e gerenciamento de banco de dados. A aplicação a ser desenvolvida será um blog com funcionalidades básicas e administração.
 
 #### Requisitos
+
 
 1. **Configuração do Ambiente**
 
