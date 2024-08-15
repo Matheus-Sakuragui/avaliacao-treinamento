@@ -289,7 +289,7 @@ Estes são alguns cenários propostos, você poderá propor outros cenários pos
    - Flask-Admin é uma extensão para Flask que fornece uma interface administrativa para gerenciar modelos e dados. É usado para criar rapidamente uma interface de administração para CRUD (Create, Read, Update, Delete) de dados.
 
 2. **Como você configuraria uma view administrativa para gerenciar uma entidade User utilizando Flask-Admin?**
-   - Crie uma classe `UserAdmin` que herda de `ModelView` e registre-a com o `Admin` para a entidade `User`. Exemplo:
+   - criaria uma classe `UserAdmin` que herda de `ModelView` e registrariaa com o `Admin` para a entidade `User`. Exemplo:
      ```python
      from flask_admin import Admin
      from flask_admin.contrib.sqla import ModelView
@@ -323,7 +323,7 @@ Estes são alguns cenários propostos, você poderá propor outros cenários pos
    - Flask-History é uma extensão para rastrear e armazenar alterações feitas a modelos de dados. É usado para criar um histórico de mudanças, facilitando a auditoria e a recuperação de dados.
 
 2. **Como você configuraria o Flask-History para rastrear alterações em uma entidade Post?**
-   - Configure o Flask-History para monitorar a entidade `Post` e registre alterações. Exemplo:
+   - configuraria o Flask-History para monitorar a entidade `Post` e registrar alterações. Exemplo:
      ```python
      from flask_history import History
      history = History(app)
@@ -364,7 +364,7 @@ Estes são alguns cenários propostos, você poderá propor outros cenários pos
    - GET: Recupera dados. POST: Envia dados para criar algo novo. PUT: Atualiza dados existentes. DELETE: Remove dados. Em Flask, eles são usados nas rotas para definir a ação que cada rota deve executar.
 
 3. **Como você configuraria uma aplicação Flask para diferentes ambientes (desenvolvimento, teste, produção)?**
-   - Use variáveis de ambiente ou arquivos de configuração separados para cada ambiente. Em Flask, configure o `app.config` para carregar as configurações apropriadas dependendo do ambiente.
+   - Usaria variáveis de ambiente ou arquivos de configuração separados para cada ambiente. Em Flask, configuraria o `app.config` para carregar as configurações apropriadas dependendo do ambiente.
 
 ## Testes com Behave
 
@@ -378,7 +378,7 @@ Estes são alguns cenários propostos, você poderá propor outros cenários pos
    - Given: Define o estado inicial ou pré-condições. When: Define a ação ou evento que ocorre. Then: Define o resultado esperado após a ação.
 
 4. **Como você integraria testes Behave com a sua aplicação Flask para garantir que as funcionalidades estão corretas?**
-   - Escreva testes em arquivos de feature para definir comportamentos esperados e implemente os passos correspondentes em arquivos de código. Execute os testes Behave para verificar se a aplicação Flask atende aos requisitos definidos.
+   - Escreveria testes em arquivos de feature para definir comportamentos esperados e implementaria os passos correspondentes em arquivos de código.
 
 
 ### Avaliação
