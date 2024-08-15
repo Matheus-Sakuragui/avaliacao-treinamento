@@ -25,8 +25,8 @@ class LikeModel(db_instance.Model, UserMixin):
     __table_args__ = {"schema": ca.DEFAULT_DB_SCHEMA}
     
     id = db_instance.Column(db_instance.Integer, primary_key=True, index=True)
-    post_id = db_instance.Column(db_instance.Integer, db_instance.ForeignKey('posts.id'))
-    author_id = db_instance.Column(db_instance.Integer, db_instance.ForeignKey('users.id'))
+    post_id = db_instance.Column(db_instance.Integer, db_instance.ForeignKey(f'{ca.DEFAULT_DB_SCHEMA}.posts.id', ondelete='CASCADE'), nullable=False)
+    author_id = db_instance.Column(db_instance.Integer, db_instance.ForeignKey(f'{ca.DEFAULT_DB_SCHEMA}.users.id', ondelete='CASCADE'), nullable=False)
     created_at = db_instance.Column(db_instance.DateTime(timezone=True), default=func.now())
     
     def __init__(self, post_id, author_id):
@@ -40,6 +40,10 @@ class LikeModel(db_instance.Model, UserMixin):
     def getLikesByPostId(self, post_id):
         return db_instance.session.query(LikeModel).filter_by(post_id=post_id).all()
     
+    @classmethod
+    def getById(self, id):
+        return db_instance.session.query(LikeModel).filter_by(id=id).first()
+    
     @db_persist
     def save(self):
         db_instance.session.add(self)
@@ -47,8 +51,4 @@ class LikeModel(db_instance.Model, UserMixin):
     @db_persist
     def delete(self):
         db_instance.session.delete(self)
-        
 sa.orm.configure_mappers()
-    
-    
-    

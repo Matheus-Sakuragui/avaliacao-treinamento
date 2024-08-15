@@ -18,6 +18,7 @@ class TokenBlocklistModel(db_instance.Model):
     id = db_instance.Column(db_instance.Integer, primary_key=True)
     jti = db_instance.Column(db_instance.String(36), nullable=False, index=True)
     created_at = db_instance.Column(db_instance.DateTime(timezone=True), nullable=False, default=func.now())
+    TOKEN_EXPIRATION_TIME = 3600
 
     @classmethod
     def get_token(cls, jti):
@@ -43,6 +44,10 @@ class TokenBlocklistModel(db_instance.Model):
             return access_token
         else:
             return None
+        
+    @classmethod
+    def delete_token(cls, key):
+        redis_instance.delete(key)
 
     @db_persist
     def save(self):

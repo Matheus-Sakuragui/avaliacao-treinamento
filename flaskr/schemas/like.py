@@ -19,7 +19,6 @@ class LikeSchema(ma.Schema):
     
 class LikeRequestSchema(ma.Schema):
     post_id = fields.Int(required=True, default='post_id', help='This field cannot be blank')
-    author_id = fields.Int(required=True, default='author_id', help='This field cannot be blank')
 
 class LikeRequestGetSchema(ma.Schema):
     id = fields.Int(required=True, default='id', help='Invalid id')

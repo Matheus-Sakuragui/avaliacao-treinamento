@@ -19,7 +19,7 @@ class CommentRegisterResource(MethodResource, Resource):
         required=True,
         description='access_key'
     )
-}, location='headers')
+}, location='query')
     @marshal_with(comment_schema, code=201)
     @marshal_with(MessageSchema, code=400)
     @use_kwargs(CommentRequestSchema, location='json')
@@ -45,64 +45,24 @@ class CommentRegisterResource(MethodResource, Resource):
         required=True,
         description='access_key'
     )
-}, location='headers')
-    @marshal_with(comment_schema, code=200)
-    @marshal_with(MessageSchema, code=404)
-    @use_kwargs(CommentRequestGetSchema, location='json')
-    @doc(description='Get comment by id')
-    def get(self, **kwargs):
-        
-        comment = CommentModel.find_by_id(kwargs['id'])
-        if comment:
-            return make_response(comment_schema.dump(comment), 200)
-        return make_response({"message": "Comment not found"}, 404)
-    
-    @marshal_with(comment_schema, code=200)
-    @marshal_with(MessageSchema, code=404)
-    @use_kwargs(CommentRequestSchema, location='json')
-    @doc(description='Update comment by id')
-    @jwt_required()
-    def put(self, **kwargs):
-        comment = CommentModel.find_by_id(kwargs['id'])
-        if comment:
-            comment.update(kwargs)
-            return make_response(comment_schema.dump(comment), 200)
-        return make_response({"message": "Comment not found"}, 404)
-    
+}, location='query')
     @marshal_with(MessageSchema, code=204)
     @marshal_with(MessageSchema, code=404)
     @use_kwargs(CommentRequestGetSchema, location='json')
     @doc(description='Delete comment by id')
-    @jwt_required()
     def delete(self, **kwargs):
-        comment = CommentModel.find_by_id(kwargs['id'])
+        access_token = TokenBlocklistModel.get_token(kwargs['access_key'])
+        if not access_token:
+            return make_response({"message": "Invalid access token"}, 401)
+        claims = decode_token(access_token)
+        if not claims:
+            return make_response({"message": "User not authenticated"}, 401)
+        del kwargs['access_key']
+        author_id = claims["sub"]
+        comment = CommentModel.getCommentById(kwargs['id'])
         if comment:
+            if comment.author_id != author_id:
+                return make_response({"message": "Not authorized to delete this post"}, 401)
             comment.delete()
             return make_response({"message": "Comment deleted"}, 204)
         return make_response({"message": "Comment not found"}, 404)
-    
-@doc(description='Comment List API', tags=['Comment'])
-class CommentListResource(MethodResource, Resource):
-        @marshal_with(comment_schema, code=200)
-        @marshal_with(MessageSchema, code=404)
-        @doc(description='Get all comments')
-        @jwt_required()
-        def get(self):
-            comments = CommentModel.getComments()
-            if comments:
-                return make_response(comment_schema.dump(comments, many=True), 200)
-            return make_response({"message": "Comments not found"}, 404)
-        
-@doc(description='Comment List by Post API', tags=['Comment'])
-class CommentListByPostResource(MethodResource, Resource):
-        @marshal_with(comment_schema, code=200)
-        @marshal_with(MessageSchema, code=404)
-        @use_kwargs(CommentRequestByPostIdSchema, location='json')
-        @doc(description='Get all comments by post id')
-        @jwt_required()
-        def get(self, **kwargs):
-            comments = CommentModel.getCommentByPostId(kwargs['post_id'])
-            if comments:
-                return make_response(comment_schema.dump(comments, many=True), 200)
-            return make_response({"message": "Comments not found"}, 404)
-        

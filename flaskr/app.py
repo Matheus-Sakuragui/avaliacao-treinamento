@@ -11,6 +11,7 @@ from flaskr.schema import config_marshmallow
 from flaskr.security import config_app_cors, config_jwt_token
 from flaskr.swagger_docs import config_swagger
 from flaskr.versioning_db import config_versioning
+from flaskr.admin import config_flask_admin
 
 load_dotenv()
 
@@ -49,6 +50,8 @@ docs = config_swagger(app)
 
 # Config Flask Restful
 api = config_app_routes(app, docs)
+
+config_flask_admin(app)
 
 
 # Load Flask Migrate

@@ -3,8 +3,8 @@ from flask_restful import Api
 from flaskr.resources.health_checker import HealthCheckerResource
 from flaskr.resources.token import TokenRefresherResource, TokenResource
 from flaskr.resources.user import UserRegisterResource
-from flaskr.resources.post import PostRegisterResource, PostListResource, PostByAuthorResource
-from flaskr.resources.comment import CommentRegisterResource, CommentListResource, CommentListByPostResource
+from flaskr.resources.post import PostRegisterResource, PostListResource
+from flaskr.resources.comment import CommentRegisterResource
 from flaskr.resources.like import LikeRegisterResource
 
 def config_app_routes(app, docs):
@@ -15,10 +15,7 @@ def config_app_routes(app, docs):
     __setting_route_doc(HealthCheckerResource, '/health', api, docs)
     __setting_route_doc(PostRegisterResource, '/post', api, docs)
     __setting_route_doc(PostListResource, '/posts', api, docs)
-    __setting_route_doc(PostByAuthorResource, '/posts/author', api, docs),
     __setting_route_doc(CommentRegisterResource, '/comment', api, docs)
-    __setting_route_doc(CommentListResource, '/comments', api, docs)
-    __setting_route_doc(CommentListByPostResource, '/comments/post', api, docs)
     __setting_route_doc(LikeRegisterResource, '/like', api, docs)
     return api
 

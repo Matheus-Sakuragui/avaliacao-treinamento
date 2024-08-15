@@ -25,7 +25,8 @@ def db_persist(func):
         try:
             db_instance.session.commit()
             return True
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
+            print(e)
             db_instance.session.rollback()
             return False
     return persist

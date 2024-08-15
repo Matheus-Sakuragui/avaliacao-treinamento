@@ -42,21 +42,19 @@ class TokenResource(MethodResource, Resource):
         }, 201)
 
     @use_kwargs({
-        'Authorization':
+        'access_key':
         fields.Str(
             required=True,
-            description='Bearer [access_token]'
+            description='access_key'
         )
-    }, location='headers')
+    }, location='query')
     @marshal_with(MessageSchema, code=201)
     @doc(description='Revoke current access token')
-    @jwt_required()
     def delete(self, **kwargs): 
-        jti = get_jwt()["jti"]
-
-        logout_user()
-        now = datetime.now(timezone.utc)
-        TokenBlocklistModel(jti=jti, created_at=now).save()
+        access_token = TokenBlocklistModel.get_token(kwargs['access_key'])
+        if not access_token:
+            return make_response({"message": "Invalid access token"}, 401)
+        TokenBlocklistModel.delete_token(access_token)
         return make_response({"message": "Access token revoked or expired"}, 201)
 
 

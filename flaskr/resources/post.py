@@ -7,7 +7,7 @@ from marshmallow import fields
 
 from flaskr.models.post import PostModel
 from flaskr.schemas.token import MessageSchema
-from flaskr.schemas.post import (post_schema, PostRequestGetSchema, PostRequestSchema, PostRequestByAuthorIdSchema)
+from flaskr.schemas.post import (PostSchema, PostRequestGetSchema, PostRequestSchema, PostRequestByAuthorIdSchema, PostRequestPutSchema, post_schema)
 
 from flaskr.models.token import TokenBlocklistModel
 from flask_jwt_extended import decode_token
@@ -21,8 +21,8 @@ class PostRegisterResource(MethodResource, Resource):
             required=True,
             description='access_key'
         )
-    }, location='headers')
-    @marshal_with(post_schema, code=201)
+    }, location='query')
+    @marshal_with(PostSchema, code=201)
     @marshal_with(MessageSchema, code=400)
     @use_kwargs(PostRequestSchema, location='json')
     @doc(description='Register a new post')
@@ -36,10 +36,12 @@ class PostRegisterResource(MethodResource, Resource):
         del kwargs['access_key']
         
         author_id = claims["sub"]
-        
-        post = PostModel(**kwargs, author_id=author_id)
+        kwargs['author_id'] = author_id
+        post = PostModel(**kwargs)
         if post.save():
             return make_response(post_schema.dump(post), 201)
+        
+        print(post)
         return make_response({"message": "Fail registering new post"}, 400)
     
     @use_kwargs({
@@ -48,7 +50,7 @@ class PostRegisterResource(MethodResource, Resource):
             required=True,
             description='access_key'
         )
-    }, location='headers')
+    }, location='query')
     @marshal_with(post_schema, code=200)
     @marshal_with(MessageSchema, code=404)
     @use_kwargs(PostRequestGetSchema, location='json')
@@ -72,10 +74,10 @@ class PostRegisterResource(MethodResource, Resource):
             required=True,
             description='access_key'
         )
-    }, location='headers')
+    }, location='query')
     @marshal_with(post_schema, code=200)
     @marshal_with(MessageSchema, code=404)
-    @use_kwargs(PostRequestSchema, location='json')
+    @use_kwargs(PostRequestPutSchema, location='json')
     @doc(description='Update post by id')
     def put(self, **kwargs):
         access_token = TokenBlocklistModel.get_token(kwargs['access_key'])
@@ -86,11 +88,13 @@ class PostRegisterResource(MethodResource, Resource):
             return make_response({"message": "User not authenticated"}, 401)
         del kwargs['access_key']
         author_id = claims["sub"]
-        post = PostModel.find_by_id(kwargs['id'])
+        post = PostModel.getPostById(kwargs['id'])
         if post:
             if post.author_id != author_id:
                 return make_response({"message": "Not authorized to update this post"}, 401)
-            post.save(kwargs)
+            post.title = kwargs['title']
+            post.body = kwargs['body']
+            post.save()
             return make_response(post_schema.dump(post), 200)
         return make_response({"message": "Post not found"}, 404)
     
@@ -100,7 +104,7 @@ class PostRegisterResource(MethodResource, Resource):
             required=True,
             description='access_key'
         )
-    }, location='headers')
+    }, location='query')
     @marshal_with(MessageSchema, code=204)
     @marshal_with(MessageSchema, code=404)
     @use_kwargs(PostRequestGetSchema, location='json')
@@ -114,7 +118,7 @@ class PostRegisterResource(MethodResource, Resource):
             return make_response({"message": "User not authenticated"}, 401)
         del kwargs['access_key']
         author_id = claims["sub"]
-        post = PostModel.find_by_id(kwargs['id'])
+        post = PostModel.getPostById(kwargs['id'])
         if post:
             if post.author_id != author_id:
                 return make_response({"message": "Not authorized to delete this post"}, 401)
@@ -133,32 +137,3 @@ class PostListResource(MethodResource, Resource):
         if posts:
             return make_response(post_schema.dump(posts, many=True), 200)
         return make_response({"message": "No post found"}, 404)
-
-@doc(description='Post by Author API', tags=['Post'])
-class PostByAuthorResource(MethodResource, Resource):
-    @use_kwargs({
-    'access_key':
-    fields.Str(
-        required=True,
-        description='access_key'
-    )
-}, location='headers')
-    @marshal_with(post_schema, code=200)
-    @marshal_with(MessageSchema, code=404)
-    @use_kwargs(PostRequestByAuthorIdSchema, location='json')
-    @doc(description='List all posts by author id')
-    def get(self, **kwargs):
-        access_token = TokenBlocklistModel.get_token(kwargs['access_key'])
-        if not access_token:
-            return make_response({"message": "Invalid access token"}, 401)
-        claims = decode_token(access_token)
-        if not claims:
-            return make_response({"message": "User not authenticated"}, 401)
-        del kwargs['access_key']
-        posts = PostModel.getPostByAuthorId(kwargs['author_id'])
-        if posts:
-            return make_response(post_schema.dump(posts, many=True), 200)
-        return make_response({"message": "No post found"}, 404)
-    
-    
-

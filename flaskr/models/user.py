@@ -3,19 +3,15 @@ from flask_login import UserMixin
 from sqlalchemy.sql import func
 from sqlalchemy_history import make_versioned
 from werkzeug.security import check_password_hash, generate_password_hash
-import hashlib
-from flaskr.db import redis_instance
 import flaskr.config_app as ca
 from flaskr.db import db_instance, db_persist
 from flaskr.login_manager import login_manager
 
 make_versioned(user_cls='UserModel')
 
-
 @login_manager.user_loader
 def get_user(user_id):
     return UserModel.query.filter_by(id=user_id).first()
-
 
 class UserModel(db_instance.Model, UserMixin):
     __versioned__ = {
@@ -24,7 +20,7 @@ class UserModel(db_instance.Model, UserMixin):
     __tablename__ = 'users'
     __table_args__ = {"schema": ca.DEFAULT_DB_SCHEMA}
 
-    id = db_instance.Column(db_instance.Integer, primary_key=True, index=True)
+    id = db_instance.Column(db_instance.Integer, primary_key=True, index=True, autoincrement=True)
     username = db_instance.Column(db_instance.String(80))
     email = db_instance.Column(db_instance.String(120))
     password_hash = db_instance.Column(db_instance.String(200))
@@ -37,7 +33,7 @@ class UserModel(db_instance.Model, UserMixin):
         self.email = email
 
     def __repr__(self):
-        return "<UserModel(id={self.id!r}, username={self.username!r}), pwd={self.password_hashword!r}, email={self.email!r})>".format(self=self)
+        return f"<UserModel(id={self.id!r}, username={self.username!r}), pwd={self.password_hash!r}, email={self.email!r})>"
 
     def set_password(self, pwd):
         self.password_hash = generate_password_hash(pwd)
@@ -71,6 +67,5 @@ class UserModel(db_instance.Model, UserMixin):
             for count_user in range(1, 6):
                 user = UserModel(username="user" + str(count_user), password_hash="pwd" + str(count_user))
                 user.save()
-
 
 sa.orm.configure_mappers()
